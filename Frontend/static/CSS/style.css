@@ -1,0 +1,55 @@
+/* styles.css */
+body {
+    font-family: Arial, sans-serif;
+  }
+  
+  form {
+    margin-bottom:  20px;
+  }
+  
+  textarea {
+    width:  100%;
+    min-height:  200px;
+    resize: vertical;
+  }
+  
+  button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding:  10px  20px;
+    cursor: pointer;
+    margin-left:  10px;
+  }
+  
+  button:hover {
+    background-color: #0056b3;
+  }
+  
+  #results, #parsedSkills {
+    margin-top:  20px;
+    border:  1px solid #ccc;
+    padding:  10px;
+  }
+  
+  #parsedSkills div {
+    margin-bottom:  10px;
+  }
+  
+  #parsedSkills button {
+    float: right;
+    background-color: transparent;
+    border: none;
+    color: red;
+    cursor: pointer;
+  }
+  
+  a[download] {
+    display: inline-block;
+    padding:  10px  20px;
+    background-color: #007bff;
+    color: white;
+    text-decoration: none;
+    border-radius:  5px;
+  }
+  

@@ -1,0 +1,31 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Resume Matcher</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <!-- Offer Analysis Block -->
+  <h2>Analyze Job Offer</h2>
+  <form id="offerForm">
+    <textarea id="offerText" placeholder="Paste your job offer text here"></textarea>
+    <button type="submit">Submit</button>
+  </form>
+  <div id="results"></div>
+
+  <!-- Resume Upload and Parsing Block -->
+  <h2>Upload Your Resumes</h2>
+  <label for="resumeInput">Choose PDF files</label>
+  <input type="file" id="resumeInput" name="resumes[]" accept=".pdf" multiple style="display:none;" />
+  <button id="uploadButton">Select Resumes</button>
+  <div id="parsedSkills"></div>
+
+  <!-- Download Matched Resume Block -->
+  <h2>Matched Resume</h2>
+  <a href="/download_matched_resume" download>Download Matched Resume</a>
+
+  <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
