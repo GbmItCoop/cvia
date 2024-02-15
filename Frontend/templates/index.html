@@ -1,31 +1,86 @@
-<!-- index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Resume Matcher</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>CV Matcher</title>
+    <link rel="stylesheet" type="text/css" href="/static/CSS/style.css" />
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i" rel="stylesheet" />
+    <link rel="icon" type="image/icon" href="/images/logo.jpg" />
 </head>
 <body>
-  <!-- Offer Analysis Block -->
-  <h2>Analyze Job Offer</h2>
-  <form id="offerForm">
-    <textarea id="offerText" placeholder="Paste your job offer text here"></textarea>
-    <button type="submit">Submit</button>
-  </form>
-  <div id="results"></div>
+    <header>
+        <div class="logo">
+            <img src="/images/logo.png" alt="CVIA" />
+        </div>
+        <nav>
+            <ul>
+                <li><a href="#">Home</a></li>
+                <li><a href="#">About</a></li>
+                <li><a href="#">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
 
-  <!-- Resume Upload and Parsing Block -->
-  <h2>Upload Your Resumes</h2>
-  <label for="resumeInput">Choose PDF files</label>
-  <input type="file" id="resumeInput" name="resumes[]" accept=".pdf" multiple style="display:none;" />
-  <button id="uploadButton">Select Resumes</button>
-  <div id="parsedSkills"></div>
+    <!-- Offer Analysis Block -->
+    <div class="container">
+        <div class="block">
+            <h2>Analyze Job Offer</h2>
+            <form id="offerForm">
+                <textarea id="offerText" placeholder="Paste your job offer text here"></textarea>
+                <button type="submit">Submit</button>
+            </form>
+            <div id="results">
+                <!-- Placeholder for AI results -->
+                <h3>AI Results:</h3>
+                <p>Characteristics: [AI Characteristics]</p>
+            </div>
+        </div>
 
-  <!-- Download Matched Resume Block -->
-  <h2>Matched Resume</h2>
-  <a href="/download_matched_resume" download>Download Matched Resume</a>
+        <!-- Resume Upload and Parsing Block -->
+        <div class="block">
+            <h2>Upload Your Resumes</h2>
+            <label for="resumeInput">Choose PDF files</label>
+            <input type="file" id="resumeInput" name="resumes[]" accept=".pdf" multiple style="display: none" />
+            <ul id="cvList"></ul>
+            <button id="uploadButton">Select Resumes</button>
+            <div id="parsedSkills">
+                <!-- Placeholder for AI results -->
+                <h3>AI Results:</h3>
+                <p>Matching Skills: [AI Matching Skills]</p>
+            </div>
+        </div>
 
-  <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+        <!-- Download Matched Resume Block -->
+        <div class="block">
+            <h2>Matched Resume</h2>
+            <a href="/download_matched_resume" download>Download Matched Resume</a>
+        </div>
+    </div>
+
+    <footer>
+        <div class="footer-content">
+            <div class="social-media">
+                <h3>Follow us on social media</h3>
+                <!-- Add your social media icons here -->
+            </div>
+            <div class="contact-info">
+                <h3>Contact</h3>
+                <p>Email: <a href="mailto:cvmatcher@example.com">cvmatcher@example.com</a></p>
+            </div>
+            <div class="additional-links">
+                <h3>Additional links</h3>
+                <ul>
+                    <li><a href="#">Legal notice</a></li>
+                    <li><a href="#">Privacy Policy</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="copyright">
+            <p>&copy; 2024 CV Matcher. All rights reserved.</p>
+        </div>
+    </footer>
 </body>
 </html>
