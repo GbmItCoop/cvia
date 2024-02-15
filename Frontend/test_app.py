@@ -1,4 +1,5 @@
 # test_app.py
+from pathlib import Path
 import pytest
 from app import analyze_job_offer, parse_resumes, prepare_matched_resume
 
@@ -22,7 +23,7 @@ def test_parse_resumes():
     assert parse_resumes(files) == expected_skills
 
 # Test de la fonction prepare_matched_resume
-def test_prepare_matched_resume(tmp_path):  # Utilisez tmp_path pour accéder au chemin temporaire du test
+def test_prepare_matched_resume(tmp_path: Path):  # Utilisez tmp_path pour accéder au chemin temporaire du test
     # On crée un faux fichier pour simuler le CV correspondant
     fake_resume_content = b"This is a fake resume content."
     fake_resume_file = tmp_path / "matched_resume.pdf"
