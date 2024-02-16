@@ -1,61 +1,75 @@
-# app.py
-from flask import Flask, render_template, request, jsonify, send_file
+import sys
 import os
-import json
+# Add the path to the root directory of your project
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-# Placeholder for the actual logic to analyze job offer text
-def analyze_job_offer(text):
-    # Implement your logic here to extract skills, location, etc.
-    # This could involve natural language processing or other techniques
-    skills = ['Python', 'Flask']  # Example skills extracted
-    location = 'San Francisco'  # Example location extracted
-    return {'skills': skills, 'location': location}
-
-# Placeholder for the actual logic to parse resumes
-def parse_resumes(files):
-    # Implement your logic here to parse the uploaded resumes
-    # This could involve reading PDF files and applying NLP techniques
-    skills = ['Python', 'Java', 'Machine Learning']  # Example skills extracted
-    return skills
-
-# Placeholder for the actual logic to find the best match and prepare the download
-def prepare_matched_resume(skills, location):
-    # Implement your logic here to find the best match between the job offer and the resumes
-    # This could involve comparing the extracted skills and location with those in the resumes
-    # Once a match is found, prepare the file for download
-    file_path = '/path/to/matched/resume.pdf'  # Path to the matched resume file
-    return file_path
+from flask import Flask, render_template, request, jsonify, send_file
+from Backend.match_resume_offer import evaluate_resumes
+import os
+import shutil
 
 app = Flask(__name__)
+
+# Assuming Backend is a package with __init__.py
+from Backend import match_resume_offer
+
+# Specify the directory where temporary resumes will be saved
+temp_resumes_directory = 'C:\\tempcvia'
+
+if not os.path.exists(temp_resumes_directory):
+    os.makedirs(temp_resumes_directory)
 
 @app.route('/')
 def index():
     return render_template('index.html')
 
-@app.route('/analyze_offer', methods=['POST'])
-def analyze_offer():
-    data = request.get_json()
-    text = data.get('text', '')
-    result = analyze_job_offer(text)
-    return jsonify(result)
+@app.route('/process', methods=['POST'])
+def process():
+    resumes = request.files.getlist('resumes')
+    job_offer_text = request.form.get('jobOfferText', '')
 
-@app.route('/parse_resumes', methods=['POST'])
-def parse_resumes_route():
-    if 'resumes' not in request.files:
-        return jsonify({'error': 'No files were uploaded.'}),  400
+    # Clear the content of the temporary resumes directory
+    for file in os.listdir(temp_resumes_directory):
+        file_path = os.path.join(temp_resumes_directory, file)
+        try:
+            if os.path.isfile(file_path):
+                os.unlink(file_path)
+        except Exception as e:
+            print(e)
 
-    files = request.files.getlist('resumes')
-    skills = parse_resumes(files)
-    return jsonify(skills)
+    # Save resumes temporarily and get their file paths
+    resume_paths = []
+    for resume in resumes:
+        resume_path = os.path.join(temp_resumes_directory, resume.filename)
+        resume.save(resume_path)
+        resume_paths.append(resume_path)
 
-@app.route('/download_matched_resume', methods=['GET'])
-def download_matched_resume():
-    # In a real application, you would determine the best match based on the previously analyzed job offer and parsed resumes
-    # For demonstration purposes, we'll assume some predefined values
-    skills = ['Python', 'Java', 'Machine Learning']
-    location = 'San Francisco'
-    file_path = prepare_matched_resume(skills, location)
-    return send_file(file_path, as_attachment=True)
+    # Add your API key and aggregation method here
+    apikey = "nbOKDe2YAM84Kh8B0UJ3sPGsDYXXg5NS"
+    aggregation_method = "mean"
+
+    best_resumes = evaluate_resumes(resume_paths, job_offer_text, apikey, aggregation_method)
+
+    # Return the best matched resume
+    return jsonify({'bestResume': best_resumes[0] if best_resumes else None})
+
+@app.route('/download')
+def download():
+    best_resume = request.args.get('resume')
+
+    if best_resume:
+        best_resume_path = os.path.join(temp_resumes_directory, best_resume)
+        print(best_resume)
+        # Return the best-matched resume for download
+        return send_file(best_resume_path, as_attachment=True, download_name=best_resume)
+    else:
+        return jsonify({'error': 'No best resume specified'})
+
+
+
+#from waitress import serve
 
 if __name__ == '__main__':
+    # Use Waitress as the server instead of the built-in Flask server
+    #serve(app, host='0.0.0.0', port=5000)
     app.run(debug=True)

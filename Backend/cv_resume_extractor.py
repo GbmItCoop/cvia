@@ -1,5 +1,4 @@
 import requests
-import os
 
 def Funct_resume_extractor(directory, apikey):
     url = 'https://api.apilayer.com/resume_parser/upload'
