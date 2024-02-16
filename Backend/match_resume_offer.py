@@ -47,8 +47,7 @@ def evaluate_resumes(resumes, job_offer, apikey, aggregation_method):
 
   scored_resumes.sort(key=lambda x: x[1], reverse=True)
 
-  #best_resumes = [resume for resume, _ in scored_resumes if _ > 0.5]  # Adjust threshold as needed
-  best_resumes = scored_resumes[:3]  # Select only the top 3
+  best_resumes = scored_resumes[:1][0]
   return best_resumes
 
 

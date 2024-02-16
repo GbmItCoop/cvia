@@ -1,137 +1,106 @@
-document.addEventListener('DOMContentLoaded', function() {
- 
-  function displaySelectedCVs(files) {
-   var cvListDiv = document.getElementById('cvList');
-   cvListDiv.innerHTML = ''; // Efface le contenu précédent avant d'ajouter de nouveaux éléments
+document.addEventListener("DOMContentLoaded", function () {
+  const offerForm = document.getElementById("offerForm");
+  const resumeInput = document.getElementById("resumeInput");
+  const cvList = document.getElementById("cvList");
+  const downloadButton = document.getElementById("downloadButton");
+  const loader = document.getElementById("loader");
 
-   var cvListHeading = document.createElement('h2');
-   cvListHeading.textContent = 'Selected Resumes';
-   cvListDiv.appendChild(cvListHeading);
+  let resumes = [];
 
-   var ul = document.createElement('ul');
-   for (var i = 0; i < files.length; i++) {
-     var li = document.createElement('li');
-     li.textContent = files[i].name;
-    
-     // Création du bouton de suppression
-     var removeButton = document.createElement('button');
-     removeButton.textContent = 'x';
-     removeButton.className = 'remove-button'; // Ajout d'une classe pour le style ou l'écouteur d'événement
-     removeButton.setAttribute('data-index', i); // Stocke l'index du fichier dans l'attribut data-index
-    
-     // Écouteur d'événement pour la suppression du fichier
-     removeButton.addEventListener('click', function(event) {
-       var index = event.target.getAttribute('data-index'); // Récupère l'index du fichier à supprimer
-       var liToRemove = event.target.parentNode; // Obtient l'élément li parent du bouton
-       liToRemove.parentNode.removeChild(liToRemove); // Supprime l'élément li de la liste
-     });
-
-     li.appendChild(removeButton); // Ajoute le bouton de suppression à l'élément li
-     ul.appendChild(li);
-   }
-   cvListDiv.appendChild(ul);
- }
-
- // Gestion de l'upload des CV
- document.getElementById('uploadButton').addEventListener('click', function() {
-   document.getElementById('resumeInput').click();
- });
-
- document.getElementById('resumeInput').addEventListener('change', function(event) {
-   var files = event.target.files;
-   displaySelectedCVs(files); // Appel de la fonction pour afficher les CV sélectionnés
- });
-});
-
- // Handle offer form submission
- document.getElementById('offerForm').addEventListener('submit', function(event) {
-   event.preventDefault();
-   var text = document.getElementById('offerText').value;
-   fetch('/analyze_offer', {
-     method: 'POST',
-     body: JSON.stringify({ text: text }),
-     headers: { 'Content-Type': 'application/json' }
-   })
-   .then(response => response.json())
-   .then(data => {
-     document.getElementById('results').innerHTML = JSON.stringify(data);
-   });
- });
-
-
- // Handle resume upload
- document.getElementById('uploadButton').addEventListener('click', function() {
-   document.getElementById('resumeInput').click();
- });
-
- document.getElementById('resumeInput').addEventListener('change', function(event) {
-   var files = event.target.files;
-   var formData = new FormData();
-   for (var i =  0; i < files.length; i++) {
-     formData.append('resumes[]', files[i]);
-   }
-   fetch('/parse_resumes', {
-     method: 'POST',
-     body: formData
-   })
-   .then(response => response.json())
-   .then(data => {
-     var skillsDiv = document.getElementById('parsedSkills');
-     skillsDiv.innerHTML = '';
-     data.forEach(skill => {
-       var skillDiv = document.createElement('div');
-       skillDiv.textContent = skill;
-       var removeButton = document.createElement('button');
-       removeButton.textContent = 'x';
-       removeButton.onclick = function() {
-         skillsDiv.removeChild(skillDiv);
-       };
-       skillDiv.appendChild(removeButton);
-       skillsDiv.appendChild(skillDiv);
-     });
-   })
- })
-
-
-  // Handle offer form submission
-  document.getElementById('offerForm').addEventListener('submit', function(event) {
-    event.preventDefault();
-    var text = document.getElementById('offerText').value;
-    fetch('/analyze_offer', {
-      method: 'POST',
-      body: JSON.stringify({ text: text }),
-      headers: { 'Content-Type': 'application/json' }
-    })
-    .then(response => response.json())
-    .then(data => {
-      document.getElementById('results').innerHTML = JSON.stringify(data);
-    });
+  // Event listener for resume selection
+  document.getElementById("uploadButton").addEventListener("click", function () {
+      resumeInput.click();
   });
 
-
-  // Handle resume upload
-  document.getElementById('uploadButton').addEventListener('click', function() {
-    document.getElementById('resumeInput').click();
+  // Event listener for resume file selection
+  resumeInput.addEventListener("change", function () {
+      resumes = Array.from(resumeInput.files);
+      updateCVList();
   });
 
-  document.getElementById('resumeInput').addEventListener('change', function(event) {
-    var files = event.target.files;
-    var formData = new FormData();
-    for (var i =  0; i < files.length; i++) {
-      formData.append('resumes[]', files[i]);
-    }
-    fetch('/parse_resumes', {
-      method: 'POST',
-      body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-      var skillsDiv = document.getElementById('parsedSkills');
-      skillsDiv.innerHTML = '';
-      data.forEach(skill => {
-        var skillDiv = document.createElement('div');
-        skillDiv.textContent = skill;
-        skillsDiv.appendChild(skillDiv);
+  // Event listener for offer form submission
+  offerForm.addEventListener("submit", function (event) {
+      event.preventDefault();
+
+      const jobOfferText = document.getElementById("offerText").value;
+
+      // Show loader during submission
+      loader.style.display = "block";
+
+      // Create FormData object to send files
+      const formData = new FormData();
+      for (const resume of resumes) {
+          formData.append('resumes', resume);
+      }
+      formData.append('jobOfferText', jobOfferText);
+
+      // Call backend to process resumes and offer text
+      fetch("/process", {
+          method: "POST",
+          body: formData,
+      })
+      .then(response => response.json())
+      .then(data => {
+          // Display results and enable download button
+          document.getElementById("results").innerText = "Best matched resume: " + data.bestResume;
+          downloadButton.setAttribute("data-bestResume", data.bestResume);
+          downloadButton.style.display = "block";
+      })
+      .catch(error => console.error("Error:", error))
+      .finally(() => {
+          // Hide loader after completion
+          loader.style.display = "none";
       });
-    })
-  })
+  });
+
+  // Event listener for download button
+  downloadButton.addEventListener("click", function () {
+      // Retrieve the best-matched resume file name from the data attribute
+      const bestResume = downloadButton.getAttribute("data-bestResume");
+
+      // Implement download functionality with the best-matched resume
+      if (bestResume) {
+          // You can use the bestResume value to construct the download URL
+          const downloadURL = `/download?resume=${bestResume}`;
+          
+          // Redirect to the download URL or open it in a new tab
+          window.location.href = downloadURL;
+      }
+  });
+
+  // Update CV list on the webpage
+  function updateCVList() {
+      cvList.innerHTML = "";
+      resumes.forEach(resume => {
+          const li = document.createElement("li");
+          li.innerText = resume.name;
+          cvList.appendChild(li);
+      });
+  }
+});
+// Add this jQuery code in your script.js file
+
+$(document).ready(function () {
+  // Show loader when needed
+  $('#loader-container').show();
+
+  // Hide loader when the content is loaded
+  // You can replace this with your actual logic for hiding the loader
+  $(window).on('load', function () {
+    $('#loader-container').hide();
+  });
+
+  // Toggle the loader's position when scrolling
+  $(window).scroll(function () {
+    var scrollPosition = $(window).scrollTop();
+    var windowHeight = $(window).height();
+    var loaderHeight = $('#loader-container').height();
+
+    // Show loader at the middle of the screen when scrolling
+    if (scrollPosition > windowHeight / 2) {
+      $('#loader-container').css('top', '50%');
+    } else {
+      $('#loader-container').css('top', '0');
+    }
+  });
+});
